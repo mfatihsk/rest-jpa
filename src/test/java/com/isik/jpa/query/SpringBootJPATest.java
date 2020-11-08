@@ -154,5 +154,54 @@ class SpringBootJPATest {
         offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(1, offices.getTotalCount());
     }
+
+    @Test
+    void inTest() {
+        List<Filter> filters = new ArrayList<>();
+        TableQuery tableQuery = new TableQuery();
+        Filter filter = new Filter();
+        filter.setName("office");
+        filter.setOperator(Operator.IN);
+        filter.setValue("office-1,office-2");
+        filters.add(filter);
+        tableQuery.setFilters(filters);
+
+        QueryResult<Employee> offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        assertEquals(2, offices.getTotalCount());
+
+        filters = new ArrayList<>();
+        filter = new Filter();
+        filter.setName("office.id");
+        filter.setOperator(Operator.IN);
+        filter.setValue("office-1,office-2");
+        filters.add(filter);
+        tableQuery.setFilters(filters);
+
+        offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        assertEquals(2, offices.getTotalCount());
+
+        filters = new ArrayList<>();
+        filter = new Filter();
+        filter.setName("addresses.city");
+        filter.setOperator(Operator.IN);
+        filter.setValue("35");
+        filters.add(filter);
+        tableQuery.setFilters(filters);
+
+        offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        assertEquals(1, offices.getTotalCount());
+
+        filters = new ArrayList<>();
+        filter = new Filter();
+        filter.setName("addresses.city.id");
+        filter.setOperator(Operator.IN);
+        filter.setValue("35");
+        filters.add(filter);
+        tableQuery.setFilters(filters);
+
+        offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        assertEquals(1, offices.getTotalCount());
+    }
+
     // TODO MORE TESTS :)
 }

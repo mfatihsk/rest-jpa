@@ -9,8 +9,10 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author fatih
@@ -85,10 +87,15 @@ public class TableQueryBuilder {
             case GREATER_OR_EQUAL:
             case LESS_THAN :
             case LESS_OR_EQUAL:
+                //should be comparable class
                 Class<Y> comparableClazz = Util.getFilterColumnClass(rootClazz,filter.getName());
                 return Util.getPredicate( TableQueryBuilder.getCriteria(filter.getOperator(), cb), root, rootClazz, comparableClazz, filter, cb);
             case IN:
-                throw new NoSuchFieldException("IN not implemented ");
+                List<Z> collect = Arrays.stream(filter.getValue().toString().split("\\,"))
+                        .map(s -> Util.getFilteredObject(filter.getName(), s, columnClazz))
+                        .collect(Collectors.toList());
+                Expression<Y> filterPath = Util.getFilterPath(filter.getName(), root,rootClazz);
+                return filterPath.in(collect);
             default:
                 return null;
         }

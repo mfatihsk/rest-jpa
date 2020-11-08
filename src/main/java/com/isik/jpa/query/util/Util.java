@@ -45,7 +45,7 @@ public class Util {
                                                   Root<T> root, Class<T> rootClazz, Class<Y> columnClazz, Filter filter,
                                                   CriteriaBuilder cb) throws NoSuchFieldException {
         Expression<Y> filterPath = Util.getFilterPath(filter.getName(), root,rootClazz);
-        Y filteredObject = Util.getFilteredObject(filter, columnClazz);
+        Y filteredObject = Util.getFilteredObject(filter.getName(), filter.getValue(), columnClazz);
         if(filter.isCaseInsensitive() && filteredObject.getClass().equals(String.class)){
             return biFunction.apply((Expression<Y>) cb.lower((Expression<String>) filterPath),
                     (Y) lower(filteredObject, Locale.getDefault()));
@@ -73,40 +73,40 @@ public class Util {
 
     /**
      * construct filter value according to filter name attribute
-     * @param filter
+     * @param filterValue
      * @param columnClazz
      * @param <Y>
      * @return
      */
-    public static <Y> Y getFilteredObject(Filter filter, Class<Y> columnClazz) {
+    public static <Y> Y getFilteredObject(String columnName, Object filterValue, Class<Y> columnClazz) {
         try {
             if(isJPAEntity(columnClazz)) {
                 Optional<Field> idField = getIdField(columnClazz);
                 if(idField.isPresent()){
-                    return getObjectBySettingId(filter, columnClazz, idField.get());
+                    return getObjectBySettingId(filterValue, columnClazz, idField.get());
                 }
             }
             Optional<Constructor<?>> first = Arrays.stream(columnClazz.getDeclaredConstructors())
                     .filter(c -> c.getParameterCount() == 1 &&
-                            Primitives.wrap(c.getParameterTypes()[0]).isAssignableFrom(Primitives.wrap(filter.getValue().getClass())))
+                            Primitives.wrap(c.getParameterTypes()[0]).isAssignableFrom(Primitives.wrap(filterValue.getClass())))
                     .findFirst();
             if(first.isPresent()){
-                return (Y) first.get().newInstance(filter.getValue());
+                return (Y) first.get().newInstance(filterValue);
             }
         }catch (Exception e){
-            LOGGER.error("Unable to construct filtered object for filter name :{}" , filter.getName(), e);
+            LOGGER.error("Unable to construct filtered object for filter name :{}" , filterValue, e);
         }
         LOGGER.warn("Unable to construct filtered object for filter name :{}. Filter value is :{}"
-                , filter.getName()
-                , filter.getValue());
+                , columnName
+                , filterValue);
 
-        return (Y)filter.getValue();
+        return (Y)filterValue;
     }
 
     /**
      * Constructs object by setting @Id field of the object
      *
-     * @param filter
+     * @param filterValue
      * @param columnClazz
      * @param idField
      * @param <Y>
@@ -116,13 +116,13 @@ public class Util {
      * @throws InvocationTargetException
      * @throws NoSuchMethodException
      */
-    private static <Y> Y getObjectBySettingId(Filter filter, Class<Y> columnClazz, Field idField)
+    private static <Y> Y getObjectBySettingId(Object filterValue, Class<Y> columnClazz, Field idField)
             throws InstantiationException, IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         Y instance = columnClazz.getDeclaredConstructor().newInstance();
         //replace with canAcces on Java 9
         boolean accessible = idField.isAccessible();
         idField.setAccessible(true);
-        idField.set(instance, filter.getValue());
+        idField.set(instance, filterValue);
         idField.setAccessible(accessible);
         return instance;
     }
@@ -148,19 +148,25 @@ public class Util {
                 collection = Util.isCollection(currentClazz, parsed);
             }
             currentClazz = Util.getFieldClass(currentClazz,parsed);
-            currentPath = collection ? getJoinPath(currentPath, parsed) : currentPath.get(parsed);
+            currentPath = collection ? getJoinPath(currentPath, currentClazz, parsed) : currentPath.get(parsed);
         }
         return (Path<X>) currentPath;
     }
 
-    private static <X,Y> Path<X> getJoinPath(Path<Y> currentPath, String parsed) {
+    private static <X,Y> Path<X> getJoinPath(Path<Y> currentPath, Class<?> currentClazz, String parsed) {
         Path<X> result;
-        if( From.class.isAssignableFrom(currentPath.getClass()) ) {
+        if(isAttribute(Primitives.wrap(currentClazz))){
+           result =  currentPath.get(parsed);
+        } else if( From.class.isAssignableFrom(currentPath.getClass()) ) {
             result = ((From) currentPath).join(parsed, JoinType.INNER);
         } else {
             result = ((ListJoin) currentPath).join(parsed);
         }
         return result ;
+    }
+
+    private static boolean isAttribute(Class<?> currentClazz) {
+        return currentClazz.equals(String.class) || Primitives.isWrapperType(currentClazz);
     }
 
     private static Class<?> getFieldClass(Class<?> clazz, String fieldName) throws NoSuchFieldException {
