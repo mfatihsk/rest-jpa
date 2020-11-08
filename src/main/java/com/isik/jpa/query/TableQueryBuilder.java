@@ -66,23 +66,18 @@ public class TableQueryBuilder {
         Class<Z> columnClazz  = Util.getFilterColumnClass(rootClazz, filter.getName());
         switch (filter.getOperator()) {
             case EQUALS:
-                return Util.getPredicate(cb::equal, root, rootClazz, columnClazz, filter, cb);
             case NOT_EQUALS:
-                return Util.getPredicate(cb::notEqual, root, rootClazz, columnClazz, filter, cb);
-            case IS_NULL:
-                return cb.isNull(Util.getFilterPath(filter.getName(), root,rootClazz));
-            case IS_NOT_NULL:
-                return cb.isNotNull(Util.getFilterPath(filter.getName(), root,rootClazz));
+                Predicate predicate = Util.getPredicate(cb::equal, root, rootClazz, columnClazz, filter, cb);
+                return filter.getOperator() == Operator.NOT_EQUALS ? predicate.not() : predicate;
+                
             case CONTAINS:
             case STARTS_WITH:
             case ENDS_WITH:
-                TableQueryBuilder.setLikeValue(filter);
-                Class<String> likeClazz = Util.getFilterColumnClass(rootClazz, filter.getName());
-                return Util.getPredicate(cb::like, root, rootClazz, likeClazz, filter, cb);
             case NOT_CONTAINS:
                 TableQueryBuilder.setLikeValue(filter);
-                Class<String> notLikeClazz = Util.getFilterColumnClass(rootClazz, filter.getName());
-                return Util.getPredicate(cb::notLike, root, rootClazz, notLikeClazz, filter, cb);
+                Class<String> likeClazz = Util.getFilterColumnClass(rootClazz, filter.getName());
+                Predicate likePredicate = Util.getPredicate(cb::like, root, rootClazz, likeClazz, filter, cb);
+                return filter.getOperator() == Operator.NOT_CONTAINS ? likePredicate.not() : likePredicate;
             case GREATER_THAN:
             case GREATER_OR_EQUAL:
             case LESS_THAN :
@@ -91,14 +86,19 @@ public class TableQueryBuilder {
                 Class<Y> comparableClazz = Util.getFilterColumnClass(rootClazz,filter.getName());
                 return Util.getPredicate( TableQueryBuilder.getCriteria(filter.getOperator(), cb), root, rootClazz, comparableClazz, filter, cb);
             case IN:
-                List<Z> collect = Arrays.stream(filter.getValue().toString().split("\\,"))
-                        .map(s -> Util.getFilteredObject(filter.getName(), s, columnClazz))
-                        .collect(Collectors.toList());
-                Expression<Y> filterPath = Util.getFilterPath(filter.getName(), root,rootClazz);
-                return filterPath.in(collect);
+            case NOT_IN:
+                Predicate inPredicate = getIn(filter, root, rootClazz, columnClazz);
+                return filter.getOperator() == Operator.NOT_IN ? inPredicate.not() : inPredicate;
             default:
                 return null;
         }
+    }
+
+    private static <T, Z> Predicate getIn(Filter filter, Root<T> root, Class<T> rootClazz, Class<Z> columnClazz) throws NoSuchFieldException {
+        return Util.getFilterPath(filter.getName(), root, rootClazz)
+                .in(Arrays.stream(filter.getValue().toString().split("\\,"))
+                        .map(s -> Util.getFilteredObject(filter.getName(), s, columnClazz))
+                        .collect(Collectors.toList()));
     }
 
     private static <T> long getTotalCount(EntityManager entityManager, TableQuery filter, Class<T> clazz, CriteriaBuilder builder) throws NoSuchFieldException {

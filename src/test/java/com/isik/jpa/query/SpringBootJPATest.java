@@ -61,14 +61,22 @@ class SpringBootJPATest {
         assertEquals(1, result.getResults().size());
 
         filters.clear();
-
         filter = new Filter();
         filter.setName("name");
         filter.setOperator(Operator.CONTAINS);
         filter.setValue("tih");
         filters.add(filter);
         tableQuery.setFilters(filters);
+        result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        assertEquals(2, result.getResults().size());
 
+        filters.clear();
+        filter = new Filter();
+        filter.setName("name");
+        filter.setOperator(Operator.NOT_CONTAINS);
+        filter.setValue("tih");
+        filters.add(filter);
+        tableQuery.setFilters(filters);
         result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(2, result.getResults().size());
 
@@ -203,5 +211,22 @@ class SpringBootJPATest {
         assertEquals(1, offices.getTotalCount());
     }
 
+
+    @Test
+    void notInTest() {
+        List<Filter> filters = new ArrayList<>();
+        TableQuery tableQuery = new TableQuery();
+        Filter filter = new Filter();
+        filter.setName("office");
+        filter.setOperator(Operator.NOT_IN);
+        filter.setValue("office-1,office-2");
+        filters.add(filter);
+        tableQuery.setFilters(filters);
+
+        QueryResult<Employee> offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        assertEquals(1, offices.getTotalCount());
+
+
+    }
     // TODO MORE TESTS :)
 }

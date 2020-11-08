@@ -12,11 +12,10 @@ public enum Operator {
     STARTS_WITH("STARTS_WITH"),
     GREATER_THAN("GREATER_THAN"),
     LESS_THAN("LESS_THAN"),
-    IS_NULL("IS_NULL"),
-    IS_NOT_NULL("IS_NOT_NULL"),
     GREATER_OR_EQUAL("GREATER_OR_EQUAL"),
     LESS_OR_EQUAL("LESS_OR_EQUAL"),
-    IN("IN");
+    IN("IN"),
+    NOT_IN("NOT_IN");
 
     private String code;
 

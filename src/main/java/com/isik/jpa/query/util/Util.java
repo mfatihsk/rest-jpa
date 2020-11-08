@@ -45,6 +45,9 @@ public class Util {
                                                   Root<T> root, Class<T> rootClazz, Class<Y> columnClazz, Filter filter,
                                                   CriteriaBuilder cb) throws NoSuchFieldException {
         Expression<Y> filterPath = Util.getFilterPath(filter.getName(), root,rootClazz);
+        if(filter.getValue() == null){
+            return filterPath.isNull();
+        }
         Y filteredObject = Util.getFilteredObject(filter.getName(), filter.getValue(), columnClazz);
         if(filter.isCaseInsensitive() && filteredObject.getClass().equals(String.class)){
             return biFunction.apply((Expression<Y>) cb.lower((Expression<String>) filterPath),
