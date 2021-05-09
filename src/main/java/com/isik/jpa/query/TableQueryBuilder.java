@@ -69,14 +69,13 @@ public class TableQueryBuilder {
             case NOT_EQUALS:
                 Predicate predicate = Util.getPredicate(cb::equal, root, rootClazz, columnClazz, filter, cb);
                 return filter.getOperator() == Operator.NOT_EQUALS ? predicate.not() : predicate;
-                
             case CONTAINS:
             case STARTS_WITH:
             case ENDS_WITH:
             case NOT_CONTAINS:
-                TableQueryBuilder.setLikeValue(filter);
-                Class<String> likeClazz = Util.getFilterColumnClass(rootClazz, filter.getName());
-                Predicate likePredicate = Util.getPredicate(cb::like, root, rootClazz, likeClazz, filter, cb);
+                Filter likeFilter = TableQueryBuilder.setLikeValue(filter);
+                Class<String> likeClazz = Util.getFilterColumnClass(rootClazz, likeFilter.getName());
+                Predicate likePredicate = Util.getPredicate(cb::like, root, rootClazz, likeClazz, likeFilter, cb);
                 return filter.getOperator() == Operator.NOT_CONTAINS ? likePredicate.not() : likePredicate;
             case GREATER_THAN:
             case GREATER_OR_EQUAL:
@@ -161,13 +160,16 @@ public class TableQueryBuilder {
         }
     }
 
-    public static void setLikeValue( Filter filter) {
-        if(filter.getOperator() == Operator.CONTAINS || filter.getOperator() == Operator.NOT_CONTAINS){
-            filter.setValue("%" + filter.getValue() + "%");
-        } else if(filter.getOperator() == Operator.STARTS_WITH){
-            filter.setValue("%" + filter.getValue() );
-        } else if(filter.getOperator() == Operator.ENDS_WITH){
-            filter.setValue(filter.getValue() +"%");
+    public static Filter setLikeValue( Filter filter) {
+        Filter result = new Filter(filter.getName(), filter.getOperator(), filter.getValue(),
+                filter.isCaseInsensitive(), filter.getLocale());
+        if(result.getOperator() == Operator.CONTAINS || result.getOperator() == Operator.NOT_CONTAINS){
+            result.setValue("%" + result.getValue() + "%");
+        } else if(result.getOperator() == Operator.STARTS_WITH){
+            result.setValue(result.getValue()+"%"  );
+        } else if(result.getOperator() == Operator.ENDS_WITH){
+            result.setValue("%" + result.getValue());
         }
+        return result;
     }
 }

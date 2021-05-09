@@ -64,7 +64,8 @@ class SpringBootJPATest {
         filter = new Filter();
         filter.setName("name");
         filter.setOperator(Operator.CONTAINS);
-        filter.setValue("tih");
+        filter.setValue("tİh");
+        filter.setLocale("tr");
         filters.add(filter);
         tableQuery.setFilters(filters);
         result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
