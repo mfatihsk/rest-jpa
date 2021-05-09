@@ -17,11 +17,11 @@ import java.util.stream.Collectors;
 /**
  * @author fatih
  */
-public class TableQueryBuilder {
+public class JPAQueryBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TableQueryBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JPAQueryBuilder.class);
 
-    private TableQueryBuilder(){
+    private JPAQueryBuilder(){
     }
 
     /**
@@ -73,7 +73,7 @@ public class TableQueryBuilder {
             case STARTS_WITH:
             case ENDS_WITH:
             case NOT_CONTAINS:
-                Filter likeFilter = TableQueryBuilder.setLikeValue(filter);
+                Filter likeFilter = JPAQueryBuilder.setLikeValue(filter);
                 Class<String> likeClazz = Util.getFilterColumnClass(rootClazz, likeFilter.getName());
                 Predicate likePredicate = Util.getPredicate(cb::like, root, rootClazz, likeClazz, likeFilter, cb);
                 return filter.getOperator() == Operator.NOT_CONTAINS ? likePredicate.not() : likePredicate;
@@ -83,7 +83,7 @@ public class TableQueryBuilder {
             case LESS_OR_EQUAL:
                 //should be comparable class
                 Class<Y> comparableClazz = Util.getFilterColumnClass(rootClazz,filter.getName());
-                return Util.getPredicate( TableQueryBuilder.getCriteria(filter.getOperator(), cb), root, rootClazz, comparableClazz, filter, cb);
+                return Util.getPredicate( JPAQueryBuilder.getCriteria(filter.getOperator(), cb), root, rootClazz, comparableClazz, filter, cb);
             case IN:
             case NOT_IN:
                 Predicate inPredicate = getIn(filter, root, rootClazz, columnClazz);

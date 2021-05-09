@@ -57,7 +57,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        QueryResult<Employee> result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        QueryResult<Employee> result = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(1, result.getResults().size());
 
         filters.clear();
@@ -68,7 +68,7 @@ class SpringBootJPATest {
         filter.setLocale("tr");
         filters.add(filter);
         tableQuery.setFilters(filters);
-        result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        result = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(2, result.getResults().size());
 
         filters.clear();
@@ -78,7 +78,7 @@ class SpringBootJPATest {
         filter.setValue("tih");
         filters.add(filter);
         tableQuery.setFilters(filters);
-        result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        result = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(2, result.getResults().size());
 
         filters.clear();
@@ -88,7 +88,7 @@ class SpringBootJPATest {
         filter.setValue("6");
         filters.add(filter);
         tableQuery.setFilters(filters);
-        result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        result = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(2, result.getResults().size());
 
         filters.clear();
@@ -98,13 +98,13 @@ class SpringBootJPATest {
         filter.setValue("35");
         filters.add(filter);
         tableQuery.setFilters(filters);
-        result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        result = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(1, result.getResults().size());
     }
 
     @Test
     void countTest() {
-        QueryResult<Office> offices = TableQueryBuilder.filter(entityManager, new TableQuery(), Office.class);
+        QueryResult<Office> offices = JPAQueryBuilder.filter(entityManager, new TableQuery(), Office.class);
         assertEquals(30, offices.getTotalCount());
     }
     @Test
@@ -119,7 +119,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        QueryResult<Office> offices = TableQueryBuilder.filter(entityManager, tableQuery, Office.class);
+        QueryResult<Office> offices = JPAQueryBuilder.filter(entityManager, tableQuery, Office.class);
         assertEquals(1, offices.getTotalCount());
     }
     @Test
@@ -134,7 +134,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        QueryResult<Office> offices = TableQueryBuilder.filter(entityManager, tableQuery, Office.class);
+        QueryResult<Office> offices = JPAQueryBuilder.filter(entityManager, tableQuery, Office.class);
         assertEquals(0, offices.getTotalCount());
     }
 
@@ -153,14 +153,14 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        QueryResult<Employee> offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        QueryResult<Employee> offices = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(2, offices.getTotalCount());
 
         cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 1985);
         filter.setValue(cal.getTime().getTime());
 
-        offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        offices = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(1, offices.getTotalCount());
     }
 
@@ -175,7 +175,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        QueryResult<Employee> offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        QueryResult<Employee> offices = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(2, offices.getTotalCount());
 
         filters = new ArrayList<>();
@@ -186,7 +186,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        offices = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(2, offices.getTotalCount());
 
         filters = new ArrayList<>();
@@ -197,7 +197,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        offices = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(1, offices.getTotalCount());
 
         filters = new ArrayList<>();
@@ -208,7 +208,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        offices = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(1, offices.getTotalCount());
     }
 
@@ -224,7 +224,7 @@ class SpringBootJPATest {
         filters.add(filter);
         tableQuery.setFilters(filters);
 
-        QueryResult<Employee> offices = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+        QueryResult<Employee> offices = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
         assertEquals(1, offices.getTotalCount());
 
 
