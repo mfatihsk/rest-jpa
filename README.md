@@ -12,7 +12,7 @@ filter.setValue(genericEntity.getId());
 filters.add(filter);
 tableQuery.setFilters(filters);
 
-QueryResult<Employee> result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+QueryResult<Employee> result = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
 ```
 
 
@@ -23,7 +23,7 @@ filter.setOperator(Operator.EQUALS);
 filter.setValue("35");
 filters.add(filter);
 tableQuery.setFilters(filters);
-result = TableQueryBuilder.filter(entityManager, tableQuery, Employee.class);
+result = JPAQueryBuilder.filter(entityManager, tableQuery, Employee.class);
 ```
 
 
