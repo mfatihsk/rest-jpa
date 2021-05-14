@@ -1,10 +1,10 @@
 Initial commit for JPA dynamic entity query filter utility.
-# Table Query
+# Using Query model
 
 ##### Usage
 ``` bash
 List<Filter> filters = new ArrayList<>();
-TableQuery tableQuery = new TableQuery();
+QueryModel tableQuery = new QueryModel();
 Filter filter = new Filter();
 filter.setName("id");
 filter.setOperator(Operator.EQUALS);
